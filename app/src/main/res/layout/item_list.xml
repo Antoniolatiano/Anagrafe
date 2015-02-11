@@ -1,0 +1,29 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/polio"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:padding="6dip"
+    android:textAppearance="?android:attr/textAppearanceListItemSmall">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_myplaces" />
+
+    <TextView
+        android:id="@+id/first_line"
+        android:layout_width="274dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:text="Lorem Ipsum"
+        android:textAlignment="center"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:textStyle="bold" />
+
+</FrameLayout>
+

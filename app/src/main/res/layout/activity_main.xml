@@ -1,0 +1,36 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+
+        <ListView
+            android:id="@+id/my_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <ImageButton
+        android:id="@+id/add_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginStart="30dp"
+        android:background="@drawable/oval"
+        android:onClick="AddUserClicked"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="@android:color/white" />
+</FrameLayout>

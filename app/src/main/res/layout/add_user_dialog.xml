@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <EditText
+        android:id="@+id/NomeTV"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="16dp"
+        android:hint="Nome"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/CognomeTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:hint="Cognome"
+        android:inputType="textEmailAddress" />
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <Button
+            android:id="@+id/confermaButton"
+            android:layout_width="110dp"
+            android:layout_height="50dp"
+            android:layout_gravity="end"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:text="Conferma" />
+
+        <Button
+            android:id="@+id/AnnullaButton"
+            android:layout_width="110dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:text="Annulla" />
+    </FrameLayout>
+
+</LinearLayout>
