@@ -31,7 +31,8 @@ public class MainActivity extends ActionBarActivity {
     SwipeRefreshLayout swipeRefresh;
     private MyAdapter baseAdapter;
     private SwipeActionAdapter mAdapter;
-    private AddUserDialog dialog;
+    private UserDialog dialog;
+
 
     public static MainActivity getInstance() {
         return instance;
@@ -42,7 +43,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         utils = new HTTPUtils();
-        dialog = new AddUserDialog(this);
+        dialog = new UserDialog(this);
         setContentView(R.layout.activity_main);
         mListView = (ListView) findViewById(R.id.my_list_view);
         baseAdapter = new MyAdapter(this);
@@ -120,14 +121,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void UpdateTable() {
-        List<Utente> toAdd = utils.ottieniUtenti();
+        final List<Utente> toAdd = utils.ottieniUtenti();
         if (!toAdd.isEmpty()) {
             baseAdapter.clear();
             baseAdapter.addAll(toAdd);
             baseAdapter.notifyDataSetChanged();
             mAdapter.notifyDataSetChanged();
         }
-
     }
 
     public void AddUserClicked(View view) {
@@ -161,6 +161,12 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         thread.start();
+    }
+
+    public void ModifyUser(final int position) {
+        Log.d("Modifica", "Modifica posizione:" + position);
+        final Utente toMod = (Utente) mAdapter.getItem(position);
+        dialog.showModUserDialog(toMod);
     }
 
     public void AddUser(Utente toAdd) {

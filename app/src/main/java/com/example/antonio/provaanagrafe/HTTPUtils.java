@@ -17,6 +17,8 @@ import java.util.List;
 public class HTTPUtils {
     public final static int operazione_effettuata = 200;
     public final static int utente_già_registrato = 409;
+    public final static int errore_modifica_utente = 408;
+
 
     int aggiungiUtente(String Nome, String Cognome) throws IOException {
         String url = "http://dreamcloud.altervista.org/aggiungi.php";
@@ -33,6 +35,29 @@ public class HTTPUtils {
         //add request header
         con.setRequestMethod("POST");
         String urlParameters = "nome=" + nome + "&cognome=" + cognome;
+        // Send post request
+        con.setDoOutput(true);
+        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+        wr.writeBytes(urlParameters);
+        wr.flush();
+        wr.close();
+        Integer responseCode = con.getResponseCode();
+        System.out.println("\nSending 'POST' request to URL : " + indirizzo.getPath());
+        System.out.println("Post parameters : " + urlParameters);
+        System.out.println("Response Code : " + responseCode);
+        System.out.println("Response header : " + con.getHeaderField(0));
+
+        return responseCode;
+    }
+
+    int modificaUtente(Utente oldUser,Utente newUser) throws IOException {
+        String url = "http://dreamcloud.altervista.org/modifica.php";
+        URL indirizzo=new URL(url);
+        HttpURLConnection con = (HttpURLConnection) indirizzo.openConnection();
+        //add request header
+        con.setRequestMethod("POST");
+        String urlParameters = "nome=" + newUser.getNome() + "&cognome=" + newUser.getCognome() +
+                "&oldnome=" + oldUser.getNome() + "&oldcognome=" + oldUser.getCognome() ;
         // Send post request
         con.setDoOutput(true);
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());

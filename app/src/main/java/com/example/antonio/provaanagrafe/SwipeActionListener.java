@@ -35,8 +35,7 @@ public class SwipeActionListener implements SwipeActionAdapter.SwipeActionListen
             int position = positionList[i];
             switch (direction) {
                 case SwipeDirections.DIRECTION_FAR_LEFT:
-                    context.MakeToast("Left swipe Action triggered on " + mAdapter.getItem(position),
-                            Toast.LENGTH_SHORT);
+                    context.ModifyUser(position);
                     break;
                 case SwipeDirections.DIRECTION_FAR_RIGHT:
                     context.DeleteUser(position);
