@@ -138,6 +138,7 @@ public class HTTPUtils {
             @Override
             public void run() {
                 URL obj = null;
+
                 try {
                     obj = new URL(url);
                     HttpURLConnection con = (HttpURLConnection) obj.openConnection();
