@@ -48,7 +48,10 @@ public class SyncService extends IntentService {
             context.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    context.UpdateTable();
+                    if (context.utils.needUpdate()) {
+                        context.MakeToast("Ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
+                        context.UpdateTable();
+                    }
                 }
             });
             if (debug) {

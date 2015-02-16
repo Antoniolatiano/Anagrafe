@@ -8,8 +8,8 @@ android {
         applicationId "com.example.antonio.provaanagrafe"
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 5
-        versionName "1.0 RTM"
+        versionCode 6
+        versionName "1.0.5 Alpha"
     }
     buildTypes {
         release {
