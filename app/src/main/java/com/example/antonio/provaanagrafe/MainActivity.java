@@ -1,9 +1,7 @@
 package com.example.antonio.provaanagrafe;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,7 +21,6 @@ import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
-    static boolean ServiceRunning = false;
     private static MainActivity instance;
     HTTPUtils utils;
     ListView mListView;
@@ -32,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
     private MyAdapter baseAdapter;
     private SwipeActionAdapter mAdapter;
     private UserDialog dialog;
+    private Assets assets;
 
 
     public static MainActivity getInstance() {
@@ -42,6 +40,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
+        sendBroadcast(new Intent(Assets.mainActivityStarted));
         utils = new HTTPUtils();
         dialog = new UserDialog(this);
         setContentView(R.layout.activity_main);
@@ -65,23 +64,24 @@ public class MainActivity extends ActionBarActivity {
                 }, 500);
             }
         });
+        assets = Assets.getInstance();
+    }
 
+    @Override
+    protected void onStop() {
+        MakeToast("OnStop", Toast.LENGTH_SHORT);
+        sendBroadcast(new Intent(Assets.mainActivityStopped));
+        super.onStop();
     }
 
     @Override
     protected void onResume() {
-        final ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        final android.net.NetworkInfo NetInfo = connMgr.getActiveNetworkInfo();
-        UpdateTable();//fai il primo update
-        if (!ServiceRunning) {
-            if (!ServiceRunning && NetInfo != null && NetInfo.isConnected()) {
-                startService(new Intent(this, SyncService.class));
-                ServiceRunning = true;
-            } else {
-                Loaddialog = ProgressDialog.show(this, "", "In attesa della connessione", true);
+        if (assets.connessioneAttiva) {
+            if (assets.serviceRunning) {
+                MakeToast("Service già in esecuzione", Toast.LENGTH_SHORT);
             }
         } else
-            MakeToast("Service già in esecuzione", Toast.LENGTH_SHORT);
+            Loaddialog = ProgressDialog.show(this, "", "In attesa della connessione", true);
         super.onResume();
     }
 
@@ -102,7 +102,7 @@ public class MainActivity extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.stop_service:
-                if (NetworkChangeReceiver.isMyServiceRunning(SyncService.class))
+                if (MyBroadcastReceiver.isMyServiceRunning(SyncService.class))
                     stopService(new Intent(this, SyncService.class));
                 return true;
             case R.id.toogle_debug:
@@ -121,13 +121,20 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void UpdateTable() {
-        final List<Utente> toAdd = utils.ottieniUtenti();
-        if (!toAdd.isEmpty()) {
-            baseAdapter.clear();
-            baseAdapter.addAll(toAdd);
-            baseAdapter.notifyDataSetChanged();
-            mAdapter.notifyDataSetChanged();
-        }
+        Log.d(MainActivity.class.getSimpleName(), "Richiesto Update Tabella");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final List<Utente> toAdd = assets.ottieniListaUtenti();
+                if (!toAdd.isEmpty()) {
+                    baseAdapter.clear();
+                    baseAdapter.addAll(toAdd);
+                    baseAdapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
     }
 
     public void AddUserClicked(View view) {
@@ -180,7 +187,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void StopLoadingDialog() {
-        if (Loaddialog.isShowing())
+        if (Loaddialog != null && Loaddialog.isShowing())
             Loaddialog.dismiss();
     }
 }

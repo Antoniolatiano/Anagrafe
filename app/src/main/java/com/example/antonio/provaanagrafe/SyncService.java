@@ -1,9 +1,8 @@
 package com.example.antonio.provaanagrafe;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,18 +12,18 @@ import android.widget.Toast;
 public class SyncService extends IntentService {
 
     static boolean debug = false;
-    MainActivity context;
     boolean running = true;
-
+    private Assets assets = null;
+    private Handler handler;
 
     public SyncService() {
         super("SyncService");
-        context = MainActivity.getInstance();
-        if (context == null) {
-            stopSelf();
-        }
+        handler = new Handler();
+        assets = Assets.getInstance();
+        assets.Syncinstance = this;
+        assets.serviceRunning = true;
         Log.d("SyncService", "Service Started");
-        context.MakeToast("Avvio Service", Toast.LENGTH_SHORT);
+        MakeToast("Avvio Service", Toast.LENGTH_SHORT);
     }
 
     public static void SetDebug(boolean debug) {
@@ -33,29 +32,22 @@ public class SyncService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        final ConnectivityManager connMgr = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        final android.net.NetworkInfo NetInfo = connMgr
-                .getActiveNetworkInfo();
-        if (NetInfo == null || !NetInfo.isConnected()) {
-            stopSelf();
-        } else {
-            context.MakeToast("c'è connessione internet", Toast.LENGTH_SHORT);
+        if (!assets.connessioneAttiva) {
+            assets.serviceRunning = false;
         }
         int n = 1;
         while (running) {
-            context.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (context.utils.needUpdate()) {
-                        context.MakeToast("Ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
-                        context.UpdateTable();
-                    }
-                }
-            });
+            if (assets.aggiornaListaUtenti()) {//controllo se la lista è stata modificata
+                MakeToast("Ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
+                if (assets.activityRunning) //controllo se l'activity principale è in memoria
+                    assets.aggiornaActivity();
+                else
+                    assets.MakeNotification();
+            } else {
+                MakeToast("Non ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
+            }
             if (debug) {
-                context.MakeToast("Aggiornamento " + n + " della lista", Toast.LENGTH_SHORT);
+                MakeToast("Aggiornamento " + n + " della lista", Toast.LENGTH_SHORT);
             }
             n++;
             Log.d("SyncService", "Updating");
@@ -67,10 +59,26 @@ public class SyncService extends IntentService {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+
+    @Override
     public void onDestroy() {
         Log.d("SyncService", "Destroyed");
-        context.MakeToast("Distruzione Service", Toast.LENGTH_SHORT);
+        MakeToast("Distruzione Service", Toast.LENGTH_SHORT);
         running = false;
         debug = false;
+        assets.serviceRunning = false;
+    }
+
+    public void MakeToast(final String Text, final int Duration) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(SyncService.this, Text, Duration).show();
+            }
+        });
     }
 }
