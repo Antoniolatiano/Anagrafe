@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!--<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
 
 
     <application
@@ -18,7 +18,7 @@
         <receiver android:name=".MyBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!--  <action android:name="android.intent.action.BOOT_COMPLETED" />-->
                 <action android:name="com.example.antonio.provaanagrafe.MainActivity.ACTIVITY_STARTED" />
                 <action android:name="com.example.antonio.provaanagrafe.MainActivity.ACTIVITY_STOPPED" />
             </intent-filter>

@@ -40,7 +40,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        sendBroadcast(new Intent(Assets.mainActivityStarted));
         utils = new HTTPUtils();
         dialog = new UserDialog(this);
         setContentView(R.layout.activity_main);
@@ -76,9 +75,13 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
+        MakeToast("OnResume", Toast.LENGTH_SHORT);
+        sendBroadcast(new Intent(Assets.mainActivityStarted));
+        assets.connessioneAttiva = Assets.controllaConnessione(this);
         if (assets.connessioneAttiva) {
             if (assets.serviceRunning) {
                 MakeToast("Service già in esecuzione", Toast.LENGTH_SHORT);
+                UpdateTable();
             }
         } else
             Loaddialog = ProgressDialog.show(this, "", "In attesa della connessione", true);

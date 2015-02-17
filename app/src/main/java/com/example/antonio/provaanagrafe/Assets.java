@@ -3,6 +3,8 @@ package com.example.antonio.provaanagrafe;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +39,20 @@ public class Assets {
         return instance;
     }
 
+    public static boolean controllaConnessione(Context context) {
+        final ConnectivityManager connMgr = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        final android.net.NetworkInfo NetInfo = connMgr
+                .getActiveNetworkInfo();
+        if (NetInfo != null)
+            Log.d("NetworkChangeReceiver", "connected=" + NetInfo.isConnected());
+        if (NetInfo != null && NetInfo.isConnected()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public List<Utente> ottieniListaUtenti() {
         return ListaUtenti;
     }
@@ -48,6 +64,7 @@ public class Assets {
      * @return true se ha aggiornato, false se non è necessario
      */
     public boolean aggiornaListaUtenti() {
+        connessioneAttiva = controllaConnessione(Syncinstance);
         if (connessioneAttiva && utils.needUpdate()) {
             ListaUtenti = utils.ottieniUtenti();
             return true;

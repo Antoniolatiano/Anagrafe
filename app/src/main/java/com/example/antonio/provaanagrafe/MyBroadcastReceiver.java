@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.util.Log;
 
 /**
@@ -28,12 +27,12 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(MyBroadcastReceiver.class.getSimpleName(), "action: " + intent.getAction());
         switch (intent.getAction()) {
-            case Assets.bootCompleted:
+            //  case Assets.bootCompleted:
             case Assets.mainActivityStarted:
                 assets.activityRunning = true;
                 //inizializzare tutto, (se non già fatto)
             case Assets.connectivityChanged:
-                assets.connessioneAttiva = controllaConnessione(context);
+                assets.connessioneAttiva = Assets.controllaConnessione(context);
                 Log.d("NetworkChangeReceiver", "Connettivity Changed");
                 if (assets.connessioneAttiva) {
                     if (!isMyServiceRunning(SyncService.class)) {
@@ -55,19 +54,5 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
                 break;
         }
 
-    }
-
-    private boolean controllaConnessione(Context context) {
-        final ConnectivityManager connMgr = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        final android.net.NetworkInfo NetInfo = connMgr
-                .getActiveNetworkInfo();
-        if (NetInfo != null)
-            Log.d("NetworkChangeReceiver", "connected=" + NetInfo.isConnected());
-        if (NetInfo != null && NetInfo.isConnected()) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
