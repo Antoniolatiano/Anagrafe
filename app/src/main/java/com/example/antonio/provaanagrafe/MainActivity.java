@@ -160,12 +160,14 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void StartLoadingDialog() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Loaddialog = ProgressDialog.show(instance, "", "In attesa della connessione", true);
-            }
-        });
+        if (Loaddialog == null || !Loaddialog.isShowing()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Loaddialog = ProgressDialog.show(MainActivity.getInstance(), "", "In attesa della connessione", true);
+                }
+            });
+        }
     }
 
     public void StopLoadingDialog() {

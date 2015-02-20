@@ -1,5 +1,7 @@
 package com.example.antonio.provaanagrafe;
 
+import android.util.Log;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -20,6 +22,7 @@ public class HTTPUtils {
     public final static int operazione_effettuata = 200;
     public final static int utente_già_registrato = 409;
     public final static int errore_modifica_utente = 408;
+    private final String TAG = HTTPUtils.class.getSimpleName();
     private Timestamp lastUpdateTimeStamp = null, lastOperationTimeStamp;
 
     int aggiungiUtente(String Nome, String Cognome) throws IOException {
@@ -132,12 +135,13 @@ public class HTTPUtils {
     public Timestamp getLastOperationTimeStamp() {
         final String url = "http://dreamcloud.altervista.org/ottieniTimestamp.php";
         final StringBuffer response = new StringBuffer();
+        final Timestamp[] toReturn = new Timestamp[1];
+        toReturn[0] = null;
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 URL obj = null;
-
                 try {
                     obj = new URL(url);
                     HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -156,7 +160,9 @@ public class HTTPUtils {
                     }
                     in.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Connessione assente");
+                    Log.e(TAG, e.getMessage());
+                    toReturn[0] = lastUpdateTimeStamp;
                 }
             }
         });
@@ -165,10 +171,12 @@ public class HTTPUtils {
         }
         //print result
         // System.out.println(response.toString());
-        JSONObject NewtimeStamp = (JSONObject) JSONValue.parse(response.toString());
-        if (NewtimeStamp != null) {
-            return Timestamp.valueOf(NewtimeStamp.get("DataOperazione").toString());
-        } else
-            return null;
+        if (toReturn[0] == null) {
+            JSONObject NewtimeStamp = (JSONObject) JSONValue.parse(response.toString());
+            if (NewtimeStamp != null) {
+                toReturn[0] = Timestamp.valueOf(NewtimeStamp.get("DataOperazione").toString());
+            }
+        }
+        return toReturn[0];
     }
 }
