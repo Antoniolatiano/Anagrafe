@@ -12,7 +12,6 @@ import android.widget.Toast;
 public class SyncService extends IntentService {
 
     static boolean debug = false;
-    boolean running = true;
     private Assets assets = null;
     private Handler handler;
 
@@ -20,7 +19,6 @@ public class SyncService extends IntentService {
         super("SyncService");
         handler = new Handler();
         assets = Assets.getInstance();
-        assets.Syncinstance = this;
         assets.serviceRunning = true;
         Log.d("SyncService", "Service Started");
         MakeToast("Avvio Service", Toast.LENGTH_SHORT);
@@ -32,24 +30,16 @@ public class SyncService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (!assets.connessioneAttiva) {
-            assets.serviceRunning = false;
-        }
-        int n = 1;
-        while (running) {
+        while (assets.serviceRunning) {
             if (assets.aggiornaListaUtenti()) {//controllo se la lista è stata modificata
                 MakeToast("Ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
                 if (assets.activityRunning) //controllo se l'activity principale è in memoria
                     assets.aggiornaActivity();
                 else
-                    assets.MakeNotification();
+                    assets.MakeNotification(this);
             } else {
                 MakeToast("Non ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
             }
-            if (debug) {
-                MakeToast("Aggiornamento " + n + " della lista", Toast.LENGTH_SHORT);
-            }
-            n++;
             Log.d("SyncService", "Updating");
             try {
                 Thread.sleep(5000);
@@ -68,17 +58,18 @@ public class SyncService extends IntentService {
     public void onDestroy() {
         Log.d("SyncService", "Destroyed");
         MakeToast("Distruzione Service", Toast.LENGTH_SHORT);
-        running = false;
         debug = false;
         assets.serviceRunning = false;
     }
 
     public void MakeToast(final String Text, final int Duration) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(SyncService.this, Text, Duration).show();
-            }
-        });
+        if (debug) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(SyncService.this, Text, Duration).show();
+                }
+            });
+        }
     }
 }

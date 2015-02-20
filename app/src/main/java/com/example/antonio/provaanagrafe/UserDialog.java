@@ -16,7 +16,8 @@ public class UserDialog {
     final TextView NomeTV;
     final TextView CognomeTV;
     final MainActivity context;
-    Utente userToModify=null;
+    Utente userToModify = null;
+    int position = -1;
 
     public UserDialog(final MainActivity context) {
         dialog = new Dialog(context);
@@ -43,14 +44,14 @@ public class UserDialog {
                         public void run() {
                             try {
                                 int result;
-                                if(userToModify!=null){
-                                    result=context.utils.modificaUtente(userToModify,new Utente(NomeTV.getText().toString(), CognomeTV.getText().toString()));
-                                }else{
-                                    result=context.utils.aggiungiUtente(NomeTV.getText().toString(), CognomeTV.getText().toString());
+                                if (userToModify != null) {
+                                    result = context.utils.modificaUtente(userToModify, new Utente(NomeTV.getText().toString(), CognomeTV.getText().toString()));
+                                } else {
+                                    result = context.utils.aggiungiUtente(NomeTV.getText().toString(), CognomeTV.getText().toString());
                                 }
                                 switch (result) {
                                     case HTTPUtils.operazione_effettuata:
-                                        if(userToModify==null){
+                                        if (userToModify == null) {
                                             context.MakeToast("Utente aggiunto", Toast.LENGTH_SHORT);
                                             context.runOnUiThread(new Runnable() {
                                                 @Override
@@ -58,9 +59,9 @@ public class UserDialog {
                                                     context.AddUser(new Utente(NomeTV.getText().toString(), CognomeTV.getText().toString()));
                                                 }
                                             });
-                                        }
-                                        else{
+                                        } else {
                                             context.MakeToast("Utente modificato", Toast.LENGTH_SHORT);
+                                            context.assets.ottieniListaUtenti().set(position, new Utente(NomeTV.getText().toString(), CognomeTV.getText().toString()));
                                             context.runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -68,7 +69,8 @@ public class UserDialog {
                                                 }
                                             });
                                         }
-                                        userToModify=null;
+                                        userToModify = null;
+                                        position = -1;
                                         dialog.dismiss();
                                         break;
                                     case HTTPUtils.utente_già_registrato:
@@ -98,8 +100,9 @@ public class UserDialog {
         dialog.show();
     }
 
-    public void showModUserDialog(Utente toMod){
-        userToModify=toMod;
+    public void showModUserDialog(Utente toMod, int position) {
+        userToModify = toMod;
+        this.position = position;
         NomeTV.setText(toMod.getNome());
         CognomeTV.setText(toMod.getCognome());
         dialog.setTitle("Modifica Utente");

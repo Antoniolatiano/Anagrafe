@@ -3,8 +3,6 @@ package com.example.antonio.provaanagrafe;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -25,12 +23,10 @@ public class MainActivity extends ActionBarActivity {
     HTTPUtils utils;
     ListView mListView;
     ProgressDialog Loaddialog;
-    SwipeRefreshLayout swipeRefresh;
-    private MyAdapter baseAdapter;
-    private SwipeActionAdapter mAdapter;
+    MyAdapter baseAdapter;
+    SwipeActionAdapter mAdapter;
+    Assets assets;
     private UserDialog dialog;
-    private Assets assets;
-
 
     public static MainActivity getInstance() {
         return instance;
@@ -50,37 +46,20 @@ public class MainActivity extends ActionBarActivity {
         mListView.setAdapter(mAdapter);
         mAdapter.addBackground(SwipeDirections.DIRECTION_NORMAL_LEFT, R.layout.row_bg_left)
                 .addBackground(SwipeDirections.DIRECTION_NORMAL_RIGHT, R.layout.row_bg_right);
-        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        UpdateTable();
-                        swipeRefresh.setRefreshing(false);
-                    }
-                }, 500);
-            }
-        });
         assets = Assets.getInstance();
     }
 
     @Override
     protected void onStop() {
-        MakeToast("OnStop", Toast.LENGTH_SHORT);
-        sendBroadcast(new Intent(Assets.mainActivityStopped));
+        assets.activityRunning = false;
         super.onStop();
     }
 
     @Override
     protected void onResume() {
-        MakeToast("OnResume", Toast.LENGTH_SHORT);
         sendBroadcast(new Intent(Assets.mainActivityStarted));
-        assets.connessioneAttiva = Assets.controllaConnessione(this);
         if (assets.connessioneAttiva) {
             if (assets.serviceRunning) {
-                MakeToast("Service già in esecuzione", Toast.LENGTH_SHORT);
                 UpdateTable();
             }
         } else
@@ -97,29 +76,24 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        switch (id) {
+        switch (item.getItemId()) {
             case R.id.stop_service:
-                if (MyBroadcastReceiver.isMyServiceRunning(SyncService.class))
+                if (MyBroadcastReceiver.isMyServiceRunning(instance, SyncService.class))
                     stopService(new Intent(this, SyncService.class));
                 return true;
             case R.id.toogle_debug:
-                if (SyncService.debug)
+                if (SyncService.debug) {
                     SyncService.SetDebug(false);
-                else
+                    item.setTitle("Activate Debug");
+                } else {
                     SyncService.SetDebug(true);
+                    item.setTitle("Deactivate Debug");
+                }
                 return true;
             default:
                 break;
 
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -176,7 +150,7 @@ public class MainActivity extends ActionBarActivity {
     public void ModifyUser(final int position) {
         Log.d("Modifica", "Modifica posizione:" + position);
         final Utente toMod = (Utente) mAdapter.getItem(position);
-        dialog.showModUserDialog(toMod);
+        dialog.showModUserDialog(toMod, position);
     }
 
     public void AddUser(Utente toAdd) {
@@ -186,7 +160,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void StartLoadingDialog() {
-        Loaddialog = ProgressDialog.show(this, "", "In attesa della connessione", true);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Loaddialog = ProgressDialog.show(instance, "", "In attesa della connessione", true);
+            }
+        });
     }
 
     public void StopLoadingDialog() {

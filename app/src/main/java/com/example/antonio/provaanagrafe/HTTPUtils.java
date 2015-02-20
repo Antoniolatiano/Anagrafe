@@ -37,7 +37,6 @@ public class HTTPUtils {
         //add request header
         con.setRequestMethod("POST");
         con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-
         String urlParameters = "nome=" + nome + "&cognome=" + cognome;
         // Send post request
         con.setDoOutput(true);
@@ -46,16 +45,16 @@ public class HTTPUtils {
         wr.flush();
         wr.close();
         Integer responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + indirizzo.getPath());
+   /*     System.out.println("\nSending 'POST' request to URL : " + indirizzo.getPath());
         System.out.println("Post parameters : " + urlParameters);
         System.out.println("Response Code : " + responseCode);
-        System.out.println("Response header : " + con.getHeaderField(0));
+        System.out.println("Response header : " + con.getHeaderField(0));*/
 
         return responseCode;
     }
 
     List<Utente> ottieniUtenti() {
-        final String url = "http://dreamcloud.altervista.org/rispostaMod.php";
+        final String url = "http://dreamcloud.altervista.org/ottieniUtenti.php";
         final StringBuffer response = new StringBuffer();
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -67,8 +66,8 @@ public class HTTPUtils {
                     con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
                     con.setDoOutput(true);
                     Integer responseCode = con.getResponseCode();
-                    System.out.println("\nGetting response from URL : " + url);
-                    System.out.println("Response Code : " + responseCode);
+           /*         System.out.println("\nGetting response from URL : " + url);
+                    System.out.println("Response Code : " + responseCode);*/
 
                     BufferedReader in = new BufferedReader(
                             new InputStreamReader(con.getInputStream()));
@@ -98,14 +97,14 @@ public class HTTPUtils {
         return UtentiReg;
     }
 
-    int modificaUtente(Utente oldUser,Utente newUser) throws IOException {
+    int modificaUtente(Utente oldUser, Utente newUser) throws IOException {
         String url = "http://dreamcloud.altervista.org/modifica.php";
-        URL indirizzo=new URL(url);
+        URL indirizzo = new URL(url);
         HttpURLConnection con = (HttpURLConnection) indirizzo.openConnection();
         //add request header
         con.setRequestMethod("POST");
         String urlParameters = "nome=" + newUser.getNome() + "&cognome=" + newUser.getCognome() +
-                "&oldnome=" + oldUser.getNome() + "&oldcognome=" + oldUser.getCognome() ;
+                "&oldnome=" + oldUser.getNome() + "&oldcognome=" + oldUser.getCognome();
         // Send post request
         con.setDoOutput(true);
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -113,10 +112,10 @@ public class HTTPUtils {
         wr.flush();
         wr.close();
         Integer responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + indirizzo.getPath());
+  /*      System.out.println("\nSending 'POST' request to URL : " + indirizzo.getPath());
         System.out.println("Post parameters : " + urlParameters);
         System.out.println("Response Code : " + responseCode);
-        System.out.println("Response header : " + con.getHeaderField(0));
+        System.out.println("Response header : " + con.getHeaderField(0));*/
 
         return responseCode;
     }
@@ -145,8 +144,8 @@ public class HTTPUtils {
                     con.setDoOutput(true);
                     con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
                     Integer responseCode = con.getResponseCode();
-                    System.out.println("\nGetting response from URL : " + url);
-                    System.out.println("Response Code : " + responseCode);
+          /*          System.out.println("\nGetting response from URL : " + url);
+                    System.out.println("Response Code : " + responseCode);*/
 
                     BufferedReader in = new BufferedReader(
                             new InputStreamReader(con.getInputStream()));
@@ -165,7 +164,7 @@ public class HTTPUtils {
         while (thread.isAlive()) {
         }
         //print result
-        System.out.println(response.toString());
+        // System.out.println(response.toString());
         JSONObject NewtimeStamp = (JSONObject) JSONValue.parse(response.toString());
         if (NewtimeStamp != null) {
             return Timestamp.valueOf(NewtimeStamp.get("DataOperazione").toString());

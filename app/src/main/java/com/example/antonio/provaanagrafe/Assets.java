@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,11 +15,11 @@ import java.util.List;
  */
 public class Assets {
     public final static String mainActivityStarted = "com.example.antonio.provaanagrafe.MainActivity.ACTIVITY_STARTED";
-    public final static String mainActivityStopped = "com.example.antonio.provaanagrafe.MainActivity.ACTIVITY_STOPPED";
     public final static String bootCompleted = "android.intent.action.BOOT_COMPLETED";
     public final static String connectivityChanged = "android.net.conn.CONNECTIVITY_CHANGE";
+
+
     private static Assets instance = null;
-    public SyncService Syncinstance;
     public boolean serviceRunning, activityRunning;
     boolean connessioneAttiva;
     Notification.Builder listaModNotifica;
@@ -44,8 +43,6 @@ public class Assets {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         final android.net.NetworkInfo NetInfo = connMgr
                 .getActiveNetworkInfo();
-        if (NetInfo != null)
-            Log.d("NetworkChangeReceiver", "connected=" + NetInfo.isConnected());
         if (NetInfo != null && NetInfo.isConnected()) {
             return true;
         } else {
@@ -64,7 +61,6 @@ public class Assets {
      * @return true se ha aggiornato, false se non è necessario
      */
     public boolean aggiornaListaUtenti() {
-        connessioneAttiva = controllaConnessione(Syncinstance);
         if (connessioneAttiva && utils.needUpdate()) {
             ListaUtenti = utils.ottieniUtenti();
             return true;
@@ -88,12 +84,12 @@ public class Assets {
             instance.UpdateTable();
     }
 
-    public void MakeNotification() {
-        listaModNotifica = new Notification.Builder(Syncinstance)
+    public void MakeNotification(SyncService context) {
+        listaModNotifica = new Notification.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentText("La lista è stata modificata")
                 .setContentTitle("Anagrafe");
-        manager = (NotificationManager) Syncinstance.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(0, listaModNotifica.build());
     }
 }

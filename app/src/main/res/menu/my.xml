@@ -5,7 +5,7 @@
     <item
         android:id="@+id/toogle_debug"
         android:orderInCategory="100"
-        android:title="Debug"
+        android:title="Activate Debug"
         app:showAsAction="never" />
     <item
         android:id="@+id/stop_service"
