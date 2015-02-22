@@ -18,10 +18,6 @@ public class SyncService extends IntentService {
     public SyncService() {
         super("SyncService");
         handler = new Handler();
-        assets = Assets.getInstance();
-        assets.serviceRunning = true;
-        Log.d("SyncService", "Service Started");
-        MakeToast("Avvio Service", Toast.LENGTH_SHORT);
     }
 
     public static void SetDebug(boolean debug) {
@@ -50,6 +46,11 @@ public class SyncService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        assets = Assets.getInstance();
+        assets.initFromJsonConfigFile(getFilesDir());
+        Log.d("SyncService", "Service Started");
+        MakeToast("Avvio Service", Toast.LENGTH_SHORT);
+        assets.serviceRunning = true;
         super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
@@ -60,6 +61,7 @@ public class SyncService extends IntentService {
         MakeToast("Distruzione Service", Toast.LENGTH_SHORT);
         debug = false;
         assets.serviceRunning = false;
+        assets.WriteFile(getFilesDir(), Assets.FileName, assets.getJsonConfig());
     }
 
     public void MakeToast(final String Text, final int Duration) {

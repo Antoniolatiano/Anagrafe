@@ -22,8 +22,8 @@ public class HTTPUtils {
     public final static int operazione_effettuata = 200;
     public final static int utente_già_registrato = 409;
     public final static int errore_modifica_utente = 408;
+    public static Timestamp lastUpdateTimeStamp = null, lastOperationTimeStamp;
     private final String TAG = HTTPUtils.class.getSimpleName();
-    private Timestamp lastUpdateTimeStamp = null, lastOperationTimeStamp;
 
     int aggiungiUtente(String Nome, String Cognome) throws IOException {
         String url = "http://dreamcloud.altervista.org/aggiungi.php";
@@ -36,23 +36,25 @@ public class HTTPUtils {
     }
 
     private int eseguiPOST(String nome, String cognome, URL indirizzo) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) indirizzo.openConnection();
-        //add request header
-        con.setRequestMethod("POST");
-        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-        String urlParameters = "nome=" + nome + "&cognome=" + cognome;
-        // Send post request
-        con.setDoOutput(true);
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(urlParameters);
-        wr.flush();
-        wr.close();
-        Integer responseCode = con.getResponseCode();
+        Integer responseCode = 0;
+        if (!nome.isEmpty() && !cognome.isEmpty()) {
+            HttpURLConnection con = (HttpURLConnection) indirizzo.openConnection();
+            //add request header
+            con.setRequestMethod("POST");
+            con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+            String urlParameters = "nome=" + nome + "&cognome=" + cognome;
+            // Send post request
+            con.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            wr.writeBytes(urlParameters);
+            wr.flush();
+            wr.close();
+            responseCode = con.getResponseCode();
    /*     System.out.println("\nSending 'POST' request to URL : " + indirizzo.getPath());
         System.out.println("Post parameters : " + urlParameters);
         System.out.println("Response Code : " + responseCode);
         System.out.println("Response header : " + con.getHeaderField(0));*/
-
+        }
         return responseCode;
     }
 

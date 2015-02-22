@@ -1,5 +1,7 @@
 package com.example.antonio.provaanagrafe;
 
+import org.json.simple.JSONObject;
+
 public class Utente {
     public static String[] campi = {"Nome", "Cognome"};
     private String Nome, Cognome;
@@ -39,4 +41,11 @@ public class Utente {
         return true;
     }
 
+    @Override
+    public String toString() {
+        JSONObject UserJson = new JSONObject();
+        UserJson.put(campi[0], getNome());
+        UserJson.put(campi[1], getCognome());
+        return UserJson.toJSONString();
+    }
 }
