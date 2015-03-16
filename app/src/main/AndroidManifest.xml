@@ -20,6 +20,7 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="com.example.antonio.provaanagrafe.MainActivity.ACTIVITY_STARTED" />
+                <action android:name="com.example.antonio.provaanagrafe.MainActivity.NETWORK_OPERATION" />
             </intent-filter>
         </receiver>
 

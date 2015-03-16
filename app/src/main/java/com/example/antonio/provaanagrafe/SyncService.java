@@ -2,9 +2,12 @@ package com.example.antonio.provaanagrafe;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.Handler;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.antonio.provaanagrafe.network.AsyncNetworkThread;
+import com.example.antonio.provaanagrafe.network.NetworkOperations;
 
 /**
  * Created by Antonio on 07/02/2015.
@@ -13,11 +16,10 @@ public class SyncService extends IntentService {
 
     static boolean debug = false;
     private Assets assets = null;
-    private Handler handler;
+    private AsyncNetworkThread networkThread;
 
     public SyncService() {
         super("SyncService");
-        handler = new Handler();
     }
 
     public static void SetDebug(boolean debug) {
@@ -27,19 +29,17 @@ public class SyncService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         while (assets.serviceRunning) {
-            if (assets.aggiornaListaUtenti()) {//controllo se la lista è stata modificata
-                MakeToast("Ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
-                if (assets.activityRunning) //controllo se l'activity principale è in memoria
-                    assets.aggiornaActivity();
-                else
-                    assets.MakeNotification(this);
-            } else {
-                MakeToast("Non ho bisogno di aggiornare la lista", Toast.LENGTH_SHORT);
+            if (networkThread == null || networkThread.getStatus() == AsyncTask.Status.FINISHED) {
+                Log.d("SyncService", "Instantiate new AsyncTask");
+                networkThread = null;
+                networkThread = new AsyncNetworkThread(assets);
+                networkThread.execute(new NetworkOperations(NetworkOperations.EnumOperations.UPDATE_FROM_SERVICE, null));
             }
             Log.d("SyncService", "Updating");
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -47,7 +47,8 @@ public class SyncService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         assets = Assets.getInstance();
-        assets.initFromJsonConfigFile(getFilesDir());
+        //assets.initFromJsonConfigFile(getFilesDir());
+        assets.syncInstance = this;
         Log.d("SyncService", "Service Started");
         MakeToast("Avvio Service", Toast.LENGTH_SHORT);
         assets.serviceRunning = true;
@@ -61,17 +62,12 @@ public class SyncService extends IntentService {
         MakeToast("Distruzione Service", Toast.LENGTH_SHORT);
         debug = false;
         assets.serviceRunning = false;
-        assets.WriteFile(getFilesDir(), Assets.FileName, assets.getJsonConfig());
+        //assets.WriteFile(getFilesDir(), Assets.FileName, assets.getJsonConfig());
     }
 
     public void MakeToast(final String Text, final int Duration) {
         if (debug) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(SyncService.this, Text, Duration).show();
-                }
-            });
+            Toast.makeText(SyncService.this, Text, Duration).show();
         }
     }
 }

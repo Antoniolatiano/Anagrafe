@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.antonio.provaanagrafe.data.Todo;
+import com.example.antonio.provaanagrafe.network.AsyncNetworkThread;
+import com.example.antonio.provaanagrafe.network.NetworkOperations;
+
 /**
  * Created by Antonio on 07/02/2015.
  */
@@ -41,7 +45,29 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         } else if (intent.getAction() == Assets.connectivityChanged) {
             Log.d(TAG, "Stato connessione modificato");
             Toast.makeText(context, "Stato connessione modificato", Toast.LENGTH_LONG);
+        } else if (intent.getAction() == Assets.actionNetworkOperation) {
+            Log.d(TAG, "Richiesta Operazione sulla rete");
+            AsyncNetworkThread thread = new AsyncNetworkThread(assets);
+            NetworkOperations.EnumOperations op = (NetworkOperations.EnumOperations) intent.getSerializableExtra("operation");
+            switch (op) {
+                case UPDATE:
+                    Log.d(TAG, "Svolgo operazione 'UpdateTodos'");
+                    thread.execute(new NetworkOperations(op, null));
+                    break;
+                case ADD_TODO:
+                    Log.d(TAG, "Svolgo operazione 'newTodo'");
+                    thread.execute(new NetworkOperations(op, (Todo) intent.getSerializableExtra("data")));
+                    break;
+                case REMOVE_TODO:
+                    Log.d(TAG, "Svolgo operazione 'deleteTodo'");
+                    thread.execute(new NetworkOperations(op, (Todo) intent.getSerializableExtra("data")));
+                    break;
+                default:
+                    Log.d(TAG, "operazione non riconosciuta");
+                    break;
+            }
         }
+
 
         assets.connessioneAttiva = Assets.controllaConnessione(context);
 

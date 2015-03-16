@@ -7,20 +7,22 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.example.antonio.provaanagrafe.data.Todo;
+
 import java.util.ArrayList;
 
 /**
  * Created by Antonio on 07/02/2015.
  */
-public class MyAdapter extends ArrayAdapter<Utente> {
+public class MyAdapter extends ArrayAdapter<Todo> {
 
     public MyAdapter(Context context) {
-        super(context, 0, new ArrayList<Utente>());
+        super(context, 0, new ArrayList<Todo>());
     }
 
     @Override
     public View getView(int position, View View, ViewGroup parent) {
-        Utente utente = getItem(position);
+        Todo todo = getItem(position);
         MyViewHolder viewHolder;
         if (View == null) {
             viewHolder = new MyViewHolder();
@@ -30,7 +32,7 @@ public class MyAdapter extends ArrayAdapter<Utente> {
         } else {
             viewHolder = (MyViewHolder) View.getTag();
         }
-        viewHolder.firstLine.setText(utente.getNome() + " " + utente.getCognome());
+        viewHolder.firstLine.setText(todo.getMessage() + " " + todo.getUserID());
         return View;
     }
 

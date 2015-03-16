@@ -11,16 +11,16 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.antonio.provaanagrafe.data.Todo;
+import com.example.antonio.provaanagrafe.network.NetworkOperations;
+import com.example.antonio.provaanagrafe.network.POSTOperations;
 import com.wdullaer.swipeactionadapter.SwipeActionAdapter;
 import com.wdullaer.swipeactionadapter.SwipeDirections;
-
-import java.io.IOException;
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
     private static MainActivity instance;
-    HTTPUtils utils;
+    POSTOperations utils;
     ListView mListView;
     ProgressDialog Loaddialog;
     MyAdapter baseAdapter;
@@ -36,7 +36,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        utils = new HTTPUtils();
+        utils = new POSTOperations();
         dialog = new UserDialog(this);
         setContentView(R.layout.activity_main);
         mListView = (ListView) findViewById(R.id.my_list_view);
@@ -58,12 +58,13 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         sendBroadcast(new Intent(Assets.mainActivityStarted));
-        if (assets.connessioneAttiva) {
-            if (assets.serviceRunning) {
-                UpdateTable();
-            }
+        requestUpdate();
+/*        if (assets.connessioneAttiva) {
+         //   if (assets.serviceRunning) {
+                requestUpdate();
+         //   }
         } else
-            Loaddialog = ProgressDialog.show(this, "", "In attesa della connessione", true);
+            Loaddialog = ProgressDialog.show(this, "", "In attesa della connessione", true);*/
         super.onResume();
     }
 
@@ -97,21 +98,23 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void requestUpdate() {
+        Intent i = new Intent(Assets.actionNetworkOperation);
+        i.putExtra("operation", NetworkOperations.EnumOperations.UPDATE);
+        sendBroadcast(i);
+    }
     public void UpdateTable() {
         Log.d(MainActivity.class.getSimpleName(), "Richiesto Update Tabella");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final List<Utente> toAdd = assets.ottieniListaUtenti();
-                if (!toAdd.isEmpty()) {
                     baseAdapter.clear();
-                    baseAdapter.addAll(toAdd);
+                baseAdapter.addAll(assets.getTodos());
                     baseAdapter.notifyDataSetChanged();
                     mAdapter.notifyDataSetChanged();
                 }
-            }
         });
-
+        StopUserDialog();
     }
 
     public void AddUserClicked(View view) {
@@ -128,32 +131,21 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void DeleteUser(final int position) {
-        Log.d("Elimina", "Eliminazione posizione:" + position);
-        final Utente toDelete = (Utente) mAdapter.getItem(position);
-        baseAdapter.remove(toDelete);
-        baseAdapter.notifyDataSetChanged();
-        mAdapter.notifyDataSetChanged();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (utils.rimuoviUtente(toDelete.getNome(), toDelete.getCognome()) == HTTPUtils.operazione_effettuata)
-                        MakeToast("Utente eliminato", Toast.LENGTH_SHORT);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
+        Log.d("Elimina", "Eliminazione Promemoria:" + position);
+        final Todo toDelete = (Todo) mAdapter.getItem(position);
+        Intent delete = new Intent(Assets.actionNetworkOperation);
+        delete.putExtra("operation", NetworkOperations.EnumOperations.REMOVE_TODO);
+        delete.putExtra("data", toDelete);
+        sendBroadcast(delete);
     }
 
     public void ModifyUser(final int position) {
-        Log.d("Modifica", "Modifica posizione:" + position);
+    /*    Log.d("Modifica", "Modifica posizione:" + position);
         final Utente toMod = (Utente) mAdapter.getItem(position);
-        dialog.showModUserDialog(toMod, position);
+        dialog.showModUserDialog(toMod, position);*/
     }
 
-    public void AddUser(Utente toAdd) {
+    public void AddUser(Todo toAdd) {
         baseAdapter.add(toAdd);
         baseAdapter.notifyDataSetChanged();
         mAdapter.notifyDataSetChanged();
@@ -173,5 +165,10 @@ public class MainActivity extends ActionBarActivity {
     public void StopLoadingDialog() {
         if (Loaddialog != null && Loaddialog.isShowing())
             Loaddialog.dismiss();
+    }
+
+    public void StopUserDialog() {
+        if (dialog != null && dialog.isShowing())
+            dialog.dismiss();
     }
 }
